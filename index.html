@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BDS — Blood Donor Registration | Al-Aleem Medical College</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#F9F4F0;color:#1C1C1C;min-height:100vh}
+:root{
+  --red:#B03A2E;--dark:#7B241C;--light-red:#FADBD8;
+  --green:#1A7A4A;--green-bg:#D4F0E3;
+  --amber:#7A5C00;--amber-bg:#FFF8D6;
+  --border:#E8DEDA;--muted:#7a7a7a;--white:#fff
+}
+.header{background:var(--dark);padding:16px 28px;display:flex;align-items:center;gap:14px}
+.drop{width:42px;height:42px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--red);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.drop span{transform:rotate(45deg)}
+.header h1{font-size:16px;color:#fff;font-weight:700}
+.header p{font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.lock-btn{margin-left:auto;background:rgba(255,255,255,0.15);border:none;border-radius:8px;padding:6px 12px;color:#fff;cursor:pointer;font-size:12px;font-weight:600;display:none}
+.tabs{background:#fff;border-bottom:1px solid var(--border);padding:8px 28px;display:flex;gap:4px}
+.tab{padding:9px 20px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:7px;font-family:inherit}
+.tab.active{background:var(--red);color:#fff}
+.tab:not(.active){background:transparent;color:var(--muted)}
+.cnt-badge{background:var(--light-red);color:var(--dark);border-radius:10px;padding:1px 7px;font-size:11px}
+.tab.active .cnt-badge{background:rgba(255,255,255,0.25);color:#fff}
+.container{max-width:700px;margin:0 auto;padding:32px 20px 80px}
+.screen{display:none}.screen.active{display:block}
+.sec-head{margin-bottom:26px;border-left:4px solid var(--red);padding-left:14px}
+.sec-num{font-size:10px;font-weight:800;color:var(--red);letter-spacing:2px;text-transform:uppercase}
+.sec-head h2{font-size:22px;font-weight:700;margin-top:2px}
+.sec-head p{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.6}
+.steps{display:flex;background:#fff;border-radius:10px;padding:4px;border:1px solid var(--border);margin-bottom:28px;overflow-x:auto}
+.step{flex:1;text-align:center;padding:8px 4px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;white-space:nowrap;min-width:70px}
+.step.active{background:var(--red);color:#fff}
+.step.done{color:var(--green)}
+.step:not(.active):not(.done){color:var(--muted)}
+.step-num{font-size:10px;display:block;margin-bottom:1px}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:12px;font-weight:700;margin-bottom:6px;letter-spacing:.3px}
+.req{color:var(--red)}.hint{font-weight:400;color:var(--muted);font-size:11px;margin-left:5px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.row2{grid-template-columns:1fr}}
+input[type=text],input[type=date],input[type=number],input[type=tel],input[type=password],select{
+  width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;
+  font-family:inherit;font-size:13px;color:#1C1C1C;background:#fff;outline:none;transition:border .2s
+}
+input:focus,select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(176,58,46,.1)}
+.opts{display:grid;gap:6px}
+.opts.c2{grid-template-columns:repeat(2,1fr)}.opts.c3{grid-template-columns:repeat(3,1fr)}
+.opts.c4{grid-template-columns:repeat(4,1fr)}.opts.c5{grid-template-columns:repeat(5,1fr)}
+@media(max-width:480px){.opts.c3,.opts.c4,.opts.c5{grid-template-columns:1fr 1fr}}
+.opt{display:flex;align-items:center;gap:8px;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:12px;font-weight:500;background:#fff;transition:all .15s;user-select:none;line-height:1.3}
+.opt:hover{border-color:var(--red);background:var(--light-red)}
+.opt.sel{border-color:var(--red);background:var(--light-red)}
+.opt.sel-none{border-color:var(--green);background:var(--green-bg)}
+.opt .box{width:15px;height:15px;border:2px solid var(--border);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;background:#fff;transition:all .15s}
+.opt .dot{width:15px;height:15px;border:2px solid var(--border);border-radius:50%;flex-shrink:0;background:#fff;transition:all .15s}
+.opt.sel .box{background:var(--red);border-color:var(--red)}
+.opt.sel-none .box{background:var(--green);border-color:var(--green)}
+.opt.sel .dot{background:var(--red);border-color:var(--red)}
+.sub{background:#FAF6F4;border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:16px}
+.sub h3{font-size:11px;font-weight:800;color:var(--dark);letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px}
+.sub-hint{font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+.elig-banner{border-radius:8px;padding:10px 16px;font-size:12px;font-weight:600;display:none;align-items:center;gap:8px;margin-top:10px}
+.elig-banner.show{display:flex}
+.elig-banner.eligible{background:var(--green-bg);color:var(--green)}
+.elig-banner.temp{background:var(--amber-bg);color:var(--amber)}
+.elig-banner.perm{background:var(--light-red);color:var(--dark)}
+.s-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.s-badge.eligible{background:var(--green-bg);color:var(--green)}
+.s-badge.temp{background:var(--amber-bg);color:var(--amber)}
+.s-badge.perm{background:var(--light-red);color:var(--dark)}
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)}
+.btn{padding:10px 22px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;border:none}
+.btn-back{background:transparent;border:1.5px solid var(--border);color:var(--muted)}
+.btn-back:hover{border-color:#999;color:#333}
+.btn-next{background:var(--red);color:#fff;box-shadow:0 4px 12px rgba(176,58,46,.3)}
+.btn-next:hover{background:var(--dark)}
+.btn-submit{background:var(--dark);color:#fff;padding:11px 28px;font-size:14px;box-shadow:0 4px 16px rgba(123,36,28,.4)}
+.btn-submit:disabled{opacity:.6;cursor:not-allowed}
+.warn{background:var(--amber-bg);border-left:3px solid #c9a800;border-radius:6px;padding:10px 14px;font-size:12px;color:var(--amber);margin-bottom:18px;line-height:1.6}
+.declare-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:8px;font-size:12px;line-height:1.6;cursor:pointer;background:#fff;transition:border .2s}
+.declare-item.sel{border-color:var(--green);background:var(--green-bg)}
+.declare-item input{margin-top:2px;flex-shrink:0}
+.success-screen{text-align:center;padding:60px 20px;display:none}
+.success-screen.show{display:block}
+.result-icon{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 18px}
+.result-icon.eligible{background:var(--green-bg)}
+.result-icon.temp{background:var(--amber-bg)}
+.result-icon.perm{background:var(--light-red)}
+.reasons-box{background:#FAF6F4;border-radius:10px;padding:14px 18px;margin:16px auto;max-width:440px;text-align:left}
+.reasons-box li{font-size:12px;padding:4px 0;border-bottom:1px solid var(--border);list-style:none;padding-left:16px;position:relative}
+.reasons-box li::before{content:'→';position:absolute;left:0;color:var(--red);font-size:11px}
+.reasons-box li:last-child{border:none}
+.lock-screen{max-width:340px;margin:60px auto;text-align:center;padding:0 20px}
+.lock-icon{width:62px;height:62px;background:var(--light-red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 18px}
+.lock-screen h2{font-size:20px;font-weight:700;margin-bottom:6px}
+.lock-screen p{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6}
+.pwd-input{width:100%;padding:11px;border:1.5px solid var(--border);border-radius:8px;font-size:18px;letter-spacing:6px;text-align:center;font-family:inherit;outline:none;margin-bottom:8px;transition:border .2s}
+.pwd-input:focus{border-color:var(--red)}
+.pwd-input.err{border-color:var(--red);background:#fff8f7}
+.pwd-err{font-size:12px;color:var(--red);font-weight:600;margin-bottom:8px;display:none}
+.btn-unlock{width:100%;padding:11px;border-radius:8px;border:none;background:var(--red);color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(176,58,46,.3)}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.shake{animation:shake .4s ease}
+.stats{display:flex;gap:12px;margin-bottom:22px;flex-wrap:wrap}
+.stat{flex:1;min-width:100px;border-radius:12px;padding:14px 18px}
+.stat .val{font-size:28px;font-weight:800;line-height:1}
+.stat .lbl{font-size:11px;font-weight:600;margin-top:3px;opacity:.8}
+.stat.total{background:#EEE9E5;color:#333}
+.stat.elig{background:var(--green-bg);color:var(--green)}
+.stat.temp{background:var(--amber-bg);color:var(--amber)}
+.stat.perm{background:var(--light-red);color:var(--dark)}
+.filters{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+.filters input,.filters select{flex:1;min-width:160px;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;outline:none;background:#fff}
+.filters input:focus,.filters select:focus{border-color:var(--red)}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--dark);color:#fff;padding:10px 12px;text-align:left;font-size:11px;letter-spacing:.5px;white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:nth-child(even) td{background:#FBF8F6}
+tr:hover td{background:#F5EDE9;cursor:pointer}
+.bg-pill{background:var(--light-red);color:var(--dark);padding:2px 8px;border-radius:12px;font-weight:700;font-size:11px}
+.del-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;padding:2px 6px;border-radius:4px}
+.del-btn:hover{color:var(--red);background:var(--light-red)}
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty .e-icon{font-size:40px;margin-bottom:12px}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:999;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.show{display:flex}
+.modal{background:#fff;border-radius:16px;padding:26px;max-width:540px;width:100%;max-height:90vh;overflow-y:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
+.modal-head h3{font-size:19px;font-weight:700}
+.modal-head .sub-info{font-size:12px;color:var(--muted);margin-top:2px}
+.close-btn{background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);line-height:1}
+.detail-row{display:flex;gap:12px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.detail-row .dk{color:var(--muted);min-width:155px;flex-shrink:0}
+.detail-row .dv{font-weight:600;color:#1C1C1C}
+.elig-reasons{border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;font-weight:600}
+.elig-reasons ul{margin:6px 0 0;padding-left:18px;font-weight:400}
+/* Loading overlay */
+.loading-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+.loading-overlay.show{display:flex}
+.spinner{width:44px;height:44px;border:4px solid rgba(255,255,255,.3);border-top:4px solid #fff;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay p{color:#fff;font-size:14px;font-weight:600}
+/* Refresh btn */
+.refresh-btn{background:var(--red);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-left:auto}
+.refresh-btn:hover{background:var(--dark)}
+</style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <p id="loadingMsg">Submitting registration...</p>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="drop"><span>🩸</span></div>
+  <div>
+    <h1>Al-Aleem Medical College — Blood Donation Society</h1>
+    <p>Donor Registration · Gulab Devi Hospital, Lahore</p>
+  </div>
+  <button class="lock-btn" id="lockBtn" onclick="lockAdmin()">🔓 Lock Dashboard</button>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" id="tabForm" onclick="switchTab('form')">📝 Donor Registration Form</button>
+  <button class="tab" id="tabAdmin" onclick="switchTab('admin')">🔒 Admin Dashboard</button>
+</div>
+
+<!-- ══ FORM SCREEN ══ -->
+<div class="screen active" id="screenForm">
+  <div class="container">
+    <div class="steps" id="stepsBar">
+      <div class="step active" id="step0" onclick="goStep(0)"><span class="step-num">1</span>Personal</div>
+      <div class="step" id="step1" onclick="goStep(1)"><span class="step-num">2</span>Blood Group</div>
+      <div class="step" id="step2" onclick="goStep(2)"><span class="step-num">3</span>Medical</div>
+      <div class="step" id="step3" onclick="goStep(3)"><span class="step-num">4</span>Availability</div>
+      <div class="step" id="step4" onclick="goStep(4)"><span class="step-num">5</span>Declaration</div>
+    </div>
+
+    <!-- SEC 1 -->
+    <div id="sec0">
+      <div class="sec-head"><div class="sec-num">Section 01</div><h2>Personal Information</h2><p>Your contact and academic details.</p></div>
+      <div class="row2">
+        <div class="field"><label>Full Name <span class="req">*</span></label><input type="text" id="fullName" placeholder="As per CNIC"/></div>
+        <div class="field"><label>Father's Name <span class="req">*</span></label><input type="text" id="fatherName"/></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Date of Birth <span class="req">*</span></label><input type="date" id="dob"/></div>
+        <div class="field"><label>Gender <span class="req">*</span></label>
+          <div class="opts c3">
+            <div class="opt" onclick="radioSel('gender','Male',this)"><div class="dot"></div>Male</div>
+            <div class="opt" onclick="radioSel('gender','Female',this)"><div class="dot"></div>Female</div>
+            <div class="opt" onclick="radioSel('gender','Other',this)"><div class="dot"></div>Other</div>
+          </div>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Contact Number <span class="req">*</span></label><input type="tel" id="phone" placeholder="03XX-XXXXXXX"/></div>
+        <div class="field"><label>WhatsApp <span class="hint">(if different)</span></label><input type="tel" id="whatsapp" placeholder="03XX-XXXXXXX"/></div>
+      </div>
+      <div class="field"><label>Year of MBBS Study <span class="req">*</span></label>
+        <div class="opts c3">
+          <div class="opt" onclick="radioSel('year','1st Year',this)"><div class="dot"></div>1st Year</div>
+          <div class="opt" onclick="radioSel('year','2nd Year',this)"><div class="dot"></div>2nd Year</div>
+          <div class="opt" onclick="radioSel('year','3rd Year',this)"><div class="dot"></div>3rd Year</div>
+          <div class="opt" onclick="radioSel('year','4th Year',this)"><div class="dot"></div>4th Year</div>
+          <div class="opt" onclick="radioSel('year','5th Year',this)"><div class="dot"></div>5th Year</div>
+          <div class="opt" onclick="radioSel('year','House Officer',this)"><div class="dot"></div>House Officer</div>
+        </div>
+      </div>
+      <div class="field"><label>Home Address <span class="req">*</span></label><input type="text" id="address" placeholder="Street / Mohalla / Town"/></div>
+      <div class="row2">
+        <div class="field"><label>City <span class="req">*</span></label><input type="text" id="city" placeholder="e.g. Lahore"/></div>
+        <div class="field"><label>Distance from Gulab Devi Hospital</label>
+          <div class="opts c2">
+            <div class="opt" onclick="radioSel('distance','<5km',this)"><div class="dot"></div>Less than 5 km</div>
+            <div class="opt" onclick="radioSel('distance','5-10km',this)"><div class="dot"></div>5–10 km</div>
+            <div class="opt" onclick="radioSel('distance','10-20km',this)"><div class="dot"></div>10–20 km</div>
+            <div class="opt" onclick="radioSel('distance','>20km',this)"><div class="dot"></div>&gt;20 km</div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-row"><div></div><button class="btn btn-next" onclick="nextSec()">Continue →</button></div>
+    </div>
+
+    <!-- SEC 2 -->
+    <div id="sec1" style="display:none">
+      <div class="sec-head"><div class="sec-num">Section 02</div><h2>Blood Group Information</h2></div>
+      <div class="field"><label>ABO Blood Group <span class="req">*</span></label>
+        <div class="opts c5">
+          <div class="opt" onclick="radioSel('abo','A',this)"><div class="dot"></div>A</div>
+          <div class="opt" onclick="radioSel('abo','B',this)"><div class="dot"></div>B</div>
+          <div class="opt" onclick="radioSel('abo','AB',this)"><div class="dot"></div>AB</div>
+          <div class="opt" onclick="radioSel('abo','O',this)"><div class="dot"></div>O</div>
+          <div class="opt" onclick="radioSel('abo','Unknown',this)"><div class="dot"></div>Not Sure</div>
+        </div>
+      </div>
+      <div class="field"><label>Rh Factor <span class="req">*</span></label>
+        <div class="opts c3">
+          <div class="opt" onclick="radioSel('rh','positive',this)"><div class="dot"></div>Rh+ (Positive)</div>
+          <div class="opt" onclick="radioSel('rh','negative',this)"><div class="dot"></div>Rh– (Negative)</div>
+          <div class="opt" onclick="radioSel('rh','unknown',this)"><div class="dot"></div>Not Sure</div>
+        </div>
+      </div>
+      <div class="field"><label>Full Blood Group <span class="hint">(if lab confirmed)</span></label>
+        <div class="opts c4">
+          <div class="opt" onclick="radioSel('fullbg','A+',this)"><div class="dot"></div>A+</div>
+          <div class="opt" onclick="radioSel('fullbg','A-',this)"><div class="dot"></div>A–</div>
+          <div class="opt" onclick="radioSel('fullbg','B+',this)"><div class="dot"></div>B+</div>
+          <div class="opt" onclick="radioSel('fullbg','B-',this)"><div class="dot"></div>B–</div>
+          <div class="opt" onclick="radioSel('fullbg','AB+',this)"><div class="dot"></div>AB+</div>
+          <div class="opt" onclick="radioSel('fullbg','AB-',this)"><div class="dot"></div>AB–</div>
+          <div class="opt" onclick="radioSel('fullbg','O+',this)"><div class="dot"></div>O+</div>
+          <div class="opt" onclick="radioSel('fullbg','O-',this)"><div class="dot"></div>O–</div>
+          <div class="opt" onclick="radioSel('fullbg','Not confirmed',this)"><div class="dot"></div>Not confirmed</div>
+        </div>
+      </div>
+      <div class="field"><label>Previous Donation History</label>
+        <div class="opts c2">
+          <div class="opt" onclick="radioSel('prevDonation','never',this)"><div class="dot"></div>Never donated</div>
+          <div class="opt" onclick="radioSel('prevDonation','1-2',this)"><div class="dot"></div>1–2 times</div>
+          <div class="opt" onclick="radioSel('prevDonation','3-5',this)"><div class="dot"></div>3–5 times</div>
+          <div class="opt" onclick="radioSel('prevDonation','>5',this)"><div class="dot"></div>More than 5</div>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Date of Last Donation</label><input type="date" id="lastDonation"/></div>
+        <div class="field"><label>Donation Centre</label><input type="text" id="donationCentre"/></div>
+      </div>
+      <div class="nav-row"><button class="btn btn-back" onclick="prevSec()">← Back</button><button class="btn btn-next" onclick="nextSec()">Continue →</button></div>
+    </div>
+
+    <!-- SEC 3 -->
+    <div id="sec2" style="display:none">
+      <div class="sec-head"><div class="sec-num">Section 03</div><h2>Medical Eligibility</h2><p>Tick "None of the above" if no condition applies to you.</p></div>
+      <div class="warn">⚠️ Please answer honestly. Inaccurate answers may harm patients. All data is confidential.</div>
+      <div class="sub">
+        <h3>A — Infectious Diseases</h3><div class="sub-hint">Permanent deferral conditions.</div>
+        <div class="opts c2">
+          <div class="opt" onclick="chkSel('infect','HIV',this)"><div class="box"></div>HIV / AIDS</div>
+          <div class="opt" onclick="chkSel('infect','HepB',this)"><div class="box"></div>Hepatitis B (HBV)</div>
+          <div class="opt" onclick="chkSel('infect','HepC',this)"><div class="box"></div>Hepatitis C (HCV)</div>
+          <div class="opt" onclick="chkSel('infect','Syphilis',this)"><div class="box"></div>Syphilis / STI</div>
+          <div class="opt" onclick="chkSel('infect','Malaria',this)"><div class="box"></div>Malaria (active/3yr)</div>
+          <div class="opt" onclick="chkSel('infect','TB',this)"><div class="box"></div>Tuberculosis (TB)</div>
+          <div class="opt" onclick="chkSel('infect','Brucellosis',this)"><div class="box"></div>Brucellosis</div>
+          <div class="opt" onclick="chkSel('infect','NONE',this)" data-none="true"><div class="box"></div>✓ None of the above</div>
+        </div>
+      </div>
+      <div class="sub">
+        <h3>B — Chronic Diseases</h3><div class="sub-hint">May cause permanent or long-term deferral.</div>
+        <div class="opts c2">
+          <div class="opt" onclick="chkSel('chronic','Diabetes',this)"><div class="box"></div>Diabetes Mellitus</div>
+          <div class="opt" onclick="chkSel('chronic','Hypertension',this)"><div class="box"></div>Hypertension</div>
+          <div class="opt" onclick="chkSel('chronic','HeartDisease',this)"><div class="box"></div>Heart Disease</div>
+          <div class="opt" onclick="chkSel('chronic','KidneyDisease',this)"><div class="box"></div>Kidney Disease</div>
+          <div class="opt" onclick="chkSel('chronic','LiverDisease',this)"><div class="box"></div>Liver Disease</div>
+          <div class="opt" onclick="chkSel('chronic','Autoimmune',this)"><div class="box"></div>Autoimmune Disorder</div>
+          <div class="opt" onclick="chkSel('chronic','Epilepsy',this)"><div class="box"></div>Epilepsy / Seizures</div>
+          <div class="opt" onclick="chkSel('chronic','Cancer',this)"><div class="box"></div>Cancer / Malignancy</div>
+          <div class="opt" onclick="chkSel('chronic','NONE',this)" data-none="true"><div class="box"></div>✓ None of the above</div>
+        </div>
+      </div>
+      <div class="sub">
+        <h3>C — Blood Disorders</h3>
+        <div class="opts c2">
+          <div class="opt" onclick="chkSel('blood','Anaemia',this)"><div class="box"></div>Anaemia (low Hb)</div>
+          <div class="opt" onclick="chkSel('blood','Thalassaemia',this)"><div class="box"></div>Thalassaemia</div>
+          <div class="opt" onclick="chkSel('blood','SickleCell',this)"><div class="box"></div>Sickle Cell Disease</div>
+          <div class="opt" onclick="chkSel('blood','Haemophilia',this)"><div class="box"></div>Haemophilia</div>
+          <div class="opt" onclick="chkSel('blood','LowPlatelets',this)"><div class="box"></div>Thrombocytopenia</div>
+          <div class="opt" onclick="chkSel('blood','Anticoagulants',this)"><div class="box"></div>On Anticoagulants</div>
+          <div class="opt" onclick="chkSel('blood','NONE',this)" data-none="true"><div class="box"></div>✓ None of the above</div>
+        </div>
+      </div>
+      <div class="sub">
+        <h3>D — Temporary Conditions</h3><div class="sub-hint">Cannot donate right now but may become eligible later.</div>
+        <div class="opts c2">
+          <div class="opt" onclick="chkSel('temp','Pregnant',this)"><div class="box"></div>Pregnant / Breastfeeding</div>
+          <div class="opt" onclick="chkSel('temp','RecentSurgery',this)"><div class="box"></div>Surgery &lt; 6 months</div>
+          <div class="opt" onclick="chkSel('temp','Tattoo',this)"><div class="box"></div>Tattoo / Piercing &lt; 6 mo</div>
+          <div class="opt" onclick="chkSel('temp','Transfusion',this)"><div class="box"></div>Blood Transfusion &lt; 1 yr</div>
+          <div class="opt" onclick="chkSel('temp','Vaccination',this)"><div class="box"></div>Vaccination &lt; 4 weeks</div>
+          <div class="opt" onclick="chkSel('temp','ActiveFever',this)"><div class="box"></div>Active Fever / Infection</div>
+          <div class="opt" onclick="chkSel('temp','Steroids',this)"><div class="box"></div>Steroids / Immunosuppressants</div>
+          <div class="opt" onclick="chkSel('temp','Dental',this)"><div class="box"></div>Dental Extraction &lt; 72 hrs</div>
+          <div class="opt" onclick="chkSel('temp','NONE',this)" data-none="true"><div class="box"></div>✓ None of the above</div>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Body Weight (kg) <span class="req">*</span><span class="hint">Min. 50 kg</span></label>
+          <input type="number" id="weight" min="30" max="200" placeholder="e.g. 65" oninput="updateElig()"/>
+        </div>
+        <div class="field"><label>Feel healthy today? <span class="req">*</span></label>
+          <div class="opts c2">
+            <div class="opt" onclick="radioSel('healthy','yes',this)"><div class="dot"></div>Yes, I feel well</div>
+            <div class="opt" onclick="radioSel('healthy','no',this)"><div class="dot"></div>No, I am unwell</div>
+          </div>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>On regular medication?</label>
+          <div class="opts c2">
+            <div class="opt" onclick="radioSel('meds','yes',this)"><div class="dot"></div>Yes</div>
+            <div class="opt" onclick="radioSel('meds','no',this)"><div class="dot"></div>No</div>
+          </div>
+        </div>
+        <div class="field"><label>Medication(s):</label><input type="text" id="medsList"/></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Ever deferred before?</label>
+          <div class="opts c2">
+            <div class="opt" onclick="radioSel('prevDeferred','yes',this)"><div class="dot"></div>Yes</div>
+            <div class="opt" onclick="radioSel('prevDeferred','no',this)"><div class="dot"></div>No</div>
+          </div>
+        </div>
+        <div class="field"><label>Reason for deferral:</label><input type="text" id="deferralReason"/></div>
+      </div>
+      <div class="elig-banner" id="liveBanner"><span id="liveText"></span></div>
+      <div class="nav-row"><button class="btn btn-back" onclick="prevSec()">← Back</button><button class="btn btn-next" onclick="nextSec()">Continue →</button></div>
+    </div>
+
+    <!-- SEC 4 -->
+    <div id="sec3" style="display:none">
+      <div class="sec-head"><div class="sec-num">Section 04</div><h2>Availability & Emergency</h2></div>
+      <div class="field"><label>Available for donation drives?</label>
+        <div class="opts c2">
+          <div class="opt" onclick="chkSel('avail','Weekdays',this)"><div class="box"></div>Weekdays</div>
+          <div class="opt" onclick="chkSel('avail','Weekends',this)"><div class="box"></div>Weekends</div>
+          <div class="opt" onclick="chkSel('avail','Holidays',this)"><div class="box"></div>Public Holidays</div>
+          <div class="opt" onclick="chkSel('avail','OnCall',this)"><div class="box"></div>Any / On Call</div>
+        </div>
+      </div>
+      <div class="field"><label>Available for EMERGENCY (within 2–4 hrs)?</label>
+        <div class="opts c3">
+          <div class="opt" onclick="radioSel('emergency','yes',this)"><div class="dot"></div>Yes — always</div>
+          <div class="opt" onclick="radioSel('emergency','planned',this)"><div class="dot"></div>Planned only</div>
+          <div class="opt" onclick="radioSel('emergency','depends',this)"><div class="dot"></div>Depends</div>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>During college hours?</label>
+          <div class="opts c3">
+            <div class="opt" onclick="radioSel('collegeHours','yes',this)"><div class="dot"></div>Yes</div>
+            <div class="opt" onclick="radioSel('collegeHours','no',this)"><div class="dot"></div>No</div>
+            <div class="opt" onclick="radioSel('collegeHours','notice',this)"><div class="dot"></div>With notice</div>
+          </div>
+        </div>
+        <div class="field"><label>Personal transport?</label>
+          <div class="opts c3">
+            <div class="opt" onclick="radioSel('transport','own',this)"><div class="dot"></div>Yes</div>
+            <div class="opt" onclick="radioSel('transport','no',this)"><div class="dot"></div>No</div>
+            <div class="opt" onclick="radioSel('transport','arrange',this)"><div class="dot"></div>&lt;30 min</div>
+          </div>
+        </div>
+      </div>
+      <div class="field"><label>Preferred contact method:</label>
+        <div class="opts c2">
+          <div class="opt" onclick="chkSel('contactMethod','Call',this)"><div class="box"></div>Phone Call</div>
+          <div class="opt" onclick="chkSel('contactMethod','WhatsApp',this)"><div class="box"></div>WhatsApp</div>
+          <div class="opt" onclick="chkSel('contactMethod','SMS',this)"><div class="box"></div>SMS</div>
+          <div class="opt" onclick="chkSel('contactMethod','Any',this)"><div class="box"></div>Any method</div>
+        </div>
+      </div>
+      <div class="field"><label>Best time to reach you:</label>
+        <div class="opts c2">
+          <div class="opt" onclick="radioSel('bestTime','Morning',this)"><div class="dot"></div>Morning 8–12</div>
+          <div class="opt" onclick="radioSel('bestTime','Afternoon',this)"><div class="dot"></div>Afternoon 12–4</div>
+          <div class="opt" onclick="radioSel('bestTime','Evening',this)"><div class="dot"></div>Evening 4–8</div>
+          <div class="opt" onclick="radioSel('bestTime','Anytime',this)"><div class="dot"></div>Anytime</div>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Emergency Contact Name <span class="req">*</span></label><input type="text" id="emergName"/></div>
+        <div class="field"><label>Relation</label><input type="text" id="emergRelation" placeholder="e.g. Parent"/></div>
+      </div>
+      <div class="field"><label>Emergency Contact Number <span class="req">*</span></label><input type="tel" id="emergPhone" placeholder="03XX-XXXXXXX"/></div>
+      <div class="nav-row"><button class="btn btn-back" onclick="prevSec()">← Back</button><button class="btn btn-next" onclick="nextSec()">Continue →</button></div>
+    </div>
+
+    <!-- SEC 5 -->
+    <div id="sec4" style="display:none">
+      <div class="sec-head"><div class="sec-num">Section 05</div><h2>Declaration & Consent</h2></div>
+      <div id="declareItems">
+        <div class="declare-item" onclick="togDeclare(this)"><input type="checkbox" disabled> All information I have provided is <strong>true and accurate</strong>.</div>
+        <div class="declare-item" onclick="togDeclare(this)"><input type="checkbox" disabled> I voluntarily consent to be registered as a blood donor member of the Al-Aleem Medical College Blood Donation Society.</div>
+        <div class="declare-item" onclick="togDeclare(this)"><input type="checkbox" disabled> I understand my data will be kept <strong>strictly confidential</strong> and used only for donation coordination.</div>
+        <div class="declare-item" onclick="togDeclare(this)"><input type="checkbox" disabled> I acknowledge final eligibility will be confirmed by medical personnel at time of donation.</div>
+      </div>
+      <div id="finalElig" style="margin-top:16px;border-radius:10px;padding:14px 18px;font-size:13px;font-weight:600;background:#eee;color:#555">
+        Complete Section 3 to see eligibility.
+      </div>
+      <div class="nav-row"><button class="btn btn-back" onclick="prevSec()">← Back</button><button class="btn btn-submit" id="submitBtn" onclick="submitForm()">Submit Registration 🩸</button></div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-screen" id="successScreen">
+      <div class="result-icon" id="resultIcon"></div>
+      <div style="font-size:24px;font-weight:700;margin-bottom:8px" id="resultTitle"></div>
+      <div id="resultBadge"></div>
+      <p style="color:var(--muted);font-size:14px;margin-top:10px;max-width:420px;margin:10px auto 0;line-height:1.7" id="resultMsg"></p>
+      <ul class="reasons-box" id="resultReasons" style="display:none"></ul>
+      <div style="font-size:12px;color:var(--muted);margin-top:16px" id="submitDate"></div>
+      <button onclick="resetForm()" style="margin-top:20px;padding:10px 22px;border-radius:8px;border:1.5px solid var(--border);background:transparent;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600">← Register another member</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADMIN SCREEN ══ -->
+<div class="screen" id="screenAdmin">
+  <div class="container" id="lockScreen">
+    <div class="lock-screen">
+      <div class="lock-icon">🔒</div>
+      <h2>Admin Access</h2>
+      <p>Enter password to view donor responses and eligibility data.</p>
+      <input class="pwd-input" type="password" id="pwdInput" placeholder="••••" onkeydown="if(event.key==='Enter')tryPwd()"/>
+      <div class="pwd-err" id="pwdErr">Incorrect password. Try again.</div>
+      <button class="btn-unlock" onclick="tryPwd()">Unlock Dashboard →</button>
+    </div>
+  </div>
+  <div class="container" id="dashScreen" style="display:none">
+    <div class="stats" id="statsRow"></div>
+    <div class="filters">
+      <input type="text" id="searchInp" placeholder="🔍  Search name, phone, city..." oninput="renderTable()"/>
+      <select id="filtStatus" onchange="renderTable()">
+        <option value="ALL">All Status</option>
+        <option value="ELIGIBLE">✅ Eligible</option>
+        <option value="TEMPORARILY DEFERRED">⏳ Temp. Deferred</option>
+        <option value="PERMANENTLY DEFERRED">🚫 Perm. Deferred</option>
+      </select>
+      <select id="filtBg" onchange="renderTable()"><option value="ALL">All Blood Groups</option></select>
+      <button class="refresh-btn" onclick="loadFromSheet()">🔄 Refresh</button>
+    </div>
+    <div class="tbl-wrap" id="tblWrap"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()" id="modalContent"></div>
+</div>
+
+<script>
+// ══ CONFIGURATION — PASTE YOUR WEB APP URL HERE ══
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxPeJcIPxX7gq6C7XeuHG0N6xWY45qyVwFNcvgnYFOmG3HsqEdCAS5-r1Kd_TSQ1C35/exec";
+// ════════════════════════════════════════════════
+
+const ADMIN_PWD = "1011";
+let adminUnlocked = false;
+let currentSec = 0;
+let donors = [];
+
+const fd = {
+  gender:"",year:"",distance:"",abo:"",rh:"",fullbg:"",prevDonation:"",
+  bgConfirmed:"",healthy:"",meds:"",prevDeferred:"",emergency:"",
+  collegeHours:"",transport:"",bestTime:"",
+  infect:[],chronic:[],blood:[],temp:[],avail:[],contactMethod:[]
+};
+
+// ── Eligibility ──
+const PERM={HIV:"HIV / AIDS",HepB:"Hepatitis B",HepC:"Hepatitis C",Syphilis:"Syphilis/STI",TB:"Tuberculosis",Cancer:"Cancer",Haemophilia:"Haemophilia"};
+const TEMP={Malaria:"Malaria",Brucellosis:"Brucellosis",Anaemia:"Anaemia",Anticoagulants:"On Anticoagulants",
+  Pregnant:"Pregnant/Breastfeeding",RecentSurgery:"Surgery <6mo",Tattoo:"Tattoo/Piercing <6mo",
+  Transfusion:"Transfusion <1yr",Vaccination:"Vaccination <4wks",ActiveFever:"Active Fever",
+  Steroids:"On Steroids",Dental:"Dental <72hrs",Diabetes:"Diabetes",Hypertension:"Hypertension",
+  HeartDisease:"Heart Disease",KidneyDisease:"Kidney Disease",LiverDisease:"Liver Disease",
+  Autoimmune:"Autoimmune",Epilepsy:"Epilepsy",Thalassaemia:"Thalassaemia",
+  SickleCell:"Sickle Cell",LowPlatelets:"Thrombocytopenia"};
+
+function computeElig(d){
+  let status="ELIGIBLE";const reasons=[];
+  const all=[...(d.infect||[]),...(d.chronic||[]),...(d.blood||[]),...(d.temp||[])].filter(v=>v!=="NONE");
+  all.forEach(v=>{
+    if(PERM[v]){status="PERMANENTLY DEFERRED";reasons.push(PERM[v]);}
+    else if(TEMP[v]&&status!=="PERMANENTLY DEFERRED"){status="TEMPORARILY DEFERRED";reasons.push(TEMP[v]);}
+  });
+  if(d.healthy==="no"&&status!=="PERMANENTLY DEFERRED"){status="TEMPORARILY DEFERRED";reasons.push("Currently unwell");}
+  const w=parseFloat(d.weight);
+  if(!isNaN(w)&&w>0&&w<50&&status!=="PERMANENTLY DEFERRED"){status="TEMPORARILY DEFERRED";reasons.push("Weight below 50kg ("+w+"kg)");}
+  return{status,reasons};
+}
+
+const ECFG={
+  "ELIGIBLE":{bg:"#D4F0E3",color:"#1A7A4A",icon:"✅",label:"Eligible",cls:"eligible"},
+  "TEMPORARILY DEFERRED":{bg:"#FFF8D6",color:"#7A5C00",icon:"⏳",label:"Temp. Deferred",cls:"temp"},
+  "PERMANENTLY DEFERRED":{bg:"#FADBD8",color:"#7B241C",icon:"🚫",label:"Perm. Deferred",cls:"perm"}
+};
+function badge(s){const c=ECFG[s];return`<span class="s-badge ${c.cls}">${c.icon} ${c.label}</span>`;}
+
+// ── Tabs ──
+function switchTab(t){
+  document.getElementById("screenForm").classList.toggle("active",t==="form");
+  document.getElementById("screenAdmin").classList.toggle("active",t==="admin");
+  document.getElementById("tabForm").classList.toggle("active",t==="form");
+  document.getElementById("tabAdmin").classList.toggle("active",t==="admin");
+  if(t==="admin"&&!adminUnlocked){
+    document.getElementById("lockScreen").style.display="block";
+    document.getElementById("dashScreen").style.display="none";
+    document.getElementById("lockBtn").style.display="none";
+  }
+}
+
+// ── Password ──
+function tryPwd(){
+  if(document.getElementById("pwdInput").value===ADMIN_PWD){
+    adminUnlocked=true;
+    document.getElementById("lockScreen").style.display="none";
+    document.getElementById("dashScreen").style.display="block";
+    document.getElementById("lockBtn").style.display="block";
+    document.getElementById("tabAdmin").innerHTML="📊 Admin Dashboard";
+    loadFromSheet();
+  } else {
+    const pi=document.getElementById("pwdInput");
+    pi.classList.add("err","shake");
+    document.getElementById("pwdErr").style.display="block";
+    pi.value="";
+    setTimeout(()=>pi.classList.remove("shake"),500);
+  }
+}
+function lockAdmin(){
+  adminUnlocked=false;
+  document.getElementById("lockBtn").style.display="none";
+  document.getElementById("lockScreen").style.display="block";
+  document.getElementById("dashScreen").style.display="none";
+  document.getElementById("pwdInput").value="";
+  document.getElementById("pwdErr").style.display="none";
+  document.getElementById("pwdInput").classList.remove("err");
+  document.getElementById("tabAdmin").innerHTML="🔒 Admin Dashboard";
+  switchTab("form");
+}
+
+// ── Form interactions ──
+function radioSel(key,val,el){
+  el.closest(".opts").querySelectorAll(".opt").forEach(o=>{
+    o.classList.remove("sel");
+    const d=o.querySelector(".dot");if(d){d.style.background="#fff";d.style.borderColor="var(--border)";}
+  });
+  el.classList.add("sel");
+  const dot=el.querySelector(".dot");if(dot){dot.style.background="var(--red)";dot.style.borderColor="var(--red)";}
+  fd[key]=val;updateElig();
+}
+function chkSel(key,val,el){
+  if(!fd[key])fd[key]=[];
+  const parent=el.closest(".opts");const isNone=val==="NONE";
+  if(isNone){
+    parent.querySelectorAll(".opt").forEach(o=>{o.classList.remove("sel","sel-none");const b=o.querySelector(".box");if(b){b.style.background="#fff";b.style.borderColor="var(--border)";}});
+    el.classList.add("sel-none");const box=el.querySelector(".box");if(box){box.style.background="var(--green)";box.style.borderColor="var(--green)";}
+    fd[key]=["NONE"];
+  } else {
+    parent.querySelectorAll("[data-none=true]").forEach(n=>{n.classList.remove("sel-none");const b=n.querySelector(".box");if(b){b.style.background="#fff";b.style.borderColor="var(--border)";}});
+    fd[key]=fd[key].filter(x=>x!=="NONE");
+    if(el.classList.contains("sel")){el.classList.remove("sel");const b=el.querySelector(".box");if(b){b.style.background="#fff";b.style.borderColor="var(--border)";}fd[key]=fd[key].filter(x=>x!==val);}
+    else{el.classList.add("sel");const b=el.querySelector(".box");if(b){b.style.background="var(--red)";b.style.borderColor="var(--red)";}fd[key].push(val);}
+  }
+  updateElig();
+}
+function togDeclare(el){el.classList.toggle("sel");el.querySelector("input").checked=el.classList.contains("sel");}
+
+function updateElig(){
+  const d={...fd,weight:document.getElementById("weight")?.value||""};
+  const hasInput=d.infect.length||d.chronic.length||d.blood.length||d.temp.length||d.healthy||d.weight;
+  const banner=document.getElementById("liveBanner");
+  const finalEl=document.getElementById("finalElig");
+  if(!hasInput){banner.classList.remove("show");return;}
+  const r=computeElig(d);const c=ECFG[r.status];
+  banner.className=`elig-banner show ${c.cls}`;
+  document.getElementById("liveText").innerHTML=`${c.icon} Live Eligibility: <strong>${r.status}</strong>${r.reasons.length?" — "+r.reasons.slice(0,2).join(", "):""}`;
+  if(finalEl){
+    finalEl.style.background=c.bg;finalEl.style.color=c.color;
+    finalEl.innerHTML=`${c.icon} Your Eligibility: <strong>${r.status}</strong>${r.reasons.length?`<ul style="margin:6px 0 0;padding-left:18px;font-weight:400;font-size:12px">${r.reasons.map(x=>`<li>${x}</li>`).join("")}</ul>`:""}`;
+  }
+}
+
+// ── Step nav ──
+function showSec(n){
+  for(let i=0;i<5;i++)document.getElementById("sec"+i).style.display=i===n?"block":"none";
+  for(let i=0;i<5;i++){const s=document.getElementById("step"+i);s.classList.remove("active","done");if(i===n)s.classList.add("active");else if(i<n)s.classList.add("done");}
+  currentSec=n;window.scrollTo({top:0,behavior:"smooth"});
+}
+function nextSec(){if(currentSec<4)showSec(currentSec+1);}
+function prevSec(){if(currentSec>0)showSec(currentSec-1);}
+function goStep(n){if(n<currentSec)showSec(n);}
+
+// ── Submit to Google Sheets ──
+async function submitForm(){
+  if(document.querySelectorAll("#declareItems .declare-item.sel").length<4){alert("Please tick all 4 declaration statements.");return;}
+  if(!document.getElementById("fullName").value.trim()){alert("Full name is required.");return;}
+  if(!document.getElementById("phone").value.trim()){alert("Contact number is required.");return;}
+  if(WEB_APP_URL==="PASTE_YOUR_WEB_APP_URL_HERE"){alert("Web App URL not configured. Please follow the setup instructions.");return;}
+
+  const data={
+    ...fd,
+    fullName:document.getElementById("fullName").value,
+    fatherName:document.getElementById("fatherName").value,
+    dob:document.getElementById("dob").value,
+    phone:document.getElementById("phone").value,
+    whatsapp:document.getElementById("whatsapp").value,
+    address:document.getElementById("address").value,
+    city:document.getElementById("city").value,
+    lastDonation:document.getElementById("lastDonation").value,
+    donationCentre:document.getElementById("donationCentre").value,
+    weight:document.getElementById("weight").value,
+    medsList:document.getElementById("medsList").value,
+    deferralReason:document.getElementById("deferralReason").value,
+    emergName:document.getElementById("emergName").value,
+    emergRelation:document.getElementById("emergRelation").value,
+    emergPhone:document.getElementById("emergPhone").value,
+  };
+
+  // Show loading
+  document.getElementById("loadingMsg").textContent="Submitting registration...";
+  document.getElementById("loadingOverlay").classList.add("show");
+  document.getElementById("submitBtn").disabled=true;
+
+  try{
+    const res=await fetch(WEB_APP_URL,{
+      method:"POST",
+      body:JSON.stringify(data)
+    });
+    const result=await res.json();
+
+    document.getElementById("loadingOverlay").classList.remove("show");
+
+    if(result.success){
+      // Show success screen
+      document.querySelectorAll("#sec0,#sec1,#sec2,#sec3,#sec4").forEach(s=>s.style.display="none");
+      document.getElementById("stepsBar").style.display="none";
+      const ss=document.getElementById("successScreen");ss.style.display="block";
+      const c=ECFG[result.eligibility]||ECFG["ELIGIBLE"];
+      document.getElementById("resultIcon").className=`result-icon ${c.cls}`;
+      document.getElementById("resultIcon").textContent=c.icon;
+      document.getElementById("resultTitle").textContent="Registration Submitted! 🩸";
+      document.getElementById("resultBadge").innerHTML=badge(result.eligibility);
+      const msgs={"ELIGIBLE":"You are eligible to donate blood! We will contact you when your blood group is needed.","TEMPORARILY DEFERRED":"You are currently not eligible due to the reasons listed below. We will re-evaluate your status later.","PERMANENTLY DEFERRED":"Your registration has been flagged for review by our medical advisors."};
+      document.getElementById("resultMsg").textContent=msgs[result.eligibility]||"Thank you for registering.";
+      const rl=document.getElementById("resultReasons");
+      if(result.reasons?.length){rl.style.display="block";rl.innerHTML=result.reasons.map(r=>`<li>${r}</li>`).join("");}
+      document.getElementById("submitDate").textContent="Submitted on "+new Date().toLocaleDateString("en-PK",{day:"2-digit",month:"long",year:"numeric"})+" · Donor ID: "+(result.donorId||"—");
+    } else {
+      alert("Submission failed: "+(result.error||"Unknown error. Please try again."));
+      document.getElementById("submitBtn").disabled=false;
+    }
+  } catch(err){
+    document.getElementById("loadingOverlay").classList.remove("show");
+    alert("Network error. Please check your internet connection and try again.");
+    document.getElementById("submitBtn").disabled=false;
+  }
+}
+
+function resetForm(){
+  document.getElementById("successScreen").style.display="none";
+  document.getElementById("stepsBar").style.display="flex";
+  showSec(0);
+  document.querySelectorAll("input[type=text],input[type=date],input[type=number],input[type=tel]").forEach(i=>i.value="");
+  document.querySelectorAll(".opt").forEach(o=>{o.classList.remove("sel","sel-none");const b=o.querySelector(".box");const d=o.querySelector(".dot");if(b){b.style.background="#fff";b.style.borderColor="var(--border)"}if(d){d.style.background="#fff";d.style.borderColor="var(--border)"}});
+  document.querySelectorAll(".declare-item").forEach(d=>{d.classList.remove("sel");d.querySelector("input").checked=false;});
+  Object.keys(fd).forEach(k=>{if(Array.isArray(fd[k]))fd[k]=[];else fd[k]="";});
+  document.getElementById("liveBanner").classList.remove("show");
+  document.getElementById("submitBtn").disabled=false;
+}
+
+// ── Load from Google Sheets (admin) ──
+async function loadFromSheet(){
+  if(!adminUnlocked)return;
+  document.getElementById("loadingMsg").textContent="Loading donor data...";
+  document.getElementById("loadingOverlay").classList.add("show");
+  try{
+    const res=await fetch(WEB_APP_URL+"?action=getDonors");
+    const data=await res.json();
+    if(data.donors){
+      donors=data.donors;
+      renderDash();
+    }
+  } catch(e){
+    // If GET not set up, show empty state gracefully
+    donors=[];
+    renderDash();
+  }
+  document.getElementById("loadingOverlay").classList.remove("show");
+}
+
+// ── Dashboard ──
+function renderDash(){
+  const elig=donors.filter(d=>d.eligibility==="ELIGIBLE").length;
+  const temp=donors.filter(d=>d.eligibility==="TEMPORARILY DEFERRED").length;
+  const perm=donors.filter(d=>d.eligibility==="PERMANENTLY DEFERRED").length;
+  document.getElementById("statsRow").innerHTML=`
+    <div class="stat total"><div class="val">${donors.length}</div><div class="lbl">Total Registered</div></div>
+    <div class="stat elig"><div class="val">${elig}</div><div class="lbl">Eligible</div></div>
+    <div class="stat temp"><div class="val">${temp}</div><div class="lbl">Temp. Deferred</div></div>
+    <div class="stat perm"><div class="val">${perm}</div><div class="lbl">Perm. Deferred</div></div>`;
+  const bgs=[...new Set(donors.map(d=>d.fullBg||d.abo).filter(Boolean))];
+  const bgSel=document.getElementById("filtBg");
+  bgSel.innerHTML=`<option value="ALL">All Blood Groups</option>`+bgs.map(b=>`<option value="${b}">${b}</option>`).join("");
+  renderTable();
+}
+
+function renderTable(){
+  const q=(document.getElementById("searchInp")?.value||"").toLowerCase();
+  const st=document.getElementById("filtStatus")?.value||"ALL";
+  const bg=document.getElementById("filtBg")?.value||"ALL";
+  const filtered=donors.filter(d=>{
+    const ms=!q||[d.fullName,d.phone,d.city,d.fullBg,d.abo].some(v=>(v||"").toLowerCase().includes(q));
+    const mst=st==="ALL"||d.eligibility===st;
+    const mbg=bg==="ALL"||(d.fullBg===bg||d.abo===bg);
+    return ms&&mst&&mbg;
+  });
+  const wrap=document.getElementById("tblWrap");
+  if(filtered.length===0){
+    wrap.innerHTML=`<div class="empty"><div class="e-icon">🩸</div><div>${donors.length===0?"No registrations yet — submissions will appear here automatically.":"No results match your filters."}</div></div>`;
+    return;
+  }
+  wrap.innerHTML=`<table><thead><tr><th>#</th><th>Name</th><th>Blood Group</th><th>Year</th><th>City</th><th>Emergency?</th><th>Date</th><th>Eligibility</th></tr></thead>
+  <tbody>${filtered.map((d,i)=>`<tr onclick="openModal(${donors.indexOf(d)})">
+    <td style="color:var(--muted)">${i+1}</td>
+    <td style="font-weight:700">${d.fullName||"—"}</td>
+    <td><span class="bg-pill">${d.fullBg||d.abo||"—"}</span></td>
+    <td>${d.year||"—"}</td><td>${d.city||"—"}</td>
+    <td class="${d.emergency==="yes"?"":"emerg-no"}" style="${d.emergency==="yes"?"color:var(--green);font-weight:600":""}">${d.emergency==="yes"?"✅ Yes":d.emergency==="planned"?"Planned":"—"}</td>
+    <td style="color:var(--muted);white-space:nowrap">${d.submissionDate||"—"}</td>
+    <td>${badge(d.eligibility||"ELIGIBLE")}</td>
+  </tr>`).join("")}</tbody></table>`;
+}
+
+function openModal(i){
+  const d=donors[i];if(!d)return;
+  const c=ECFG[d.eligibility]||ECFG["ELIGIBLE"];
+  const rows=[["Father's Name",d.fatherName],["Date of Birth",d.dob],["Gender",d.gender],["Phone",d.phone],["WhatsApp",d.whatsapp||"—"],["Address",d.address],["Distance from GDH",d.distance],["Blood Group",d.fullBg||d.abo||"—"],["Rh Factor",d.rh||"—"],["Previous Donations",d.prevDonation],["Body Weight",d.weight?d.weight+" kg":"—"],["Medication",d.meds==="yes"?(d.medsList||"Yes"):"No"],["Emergency Availability",d.emergency],["Contact Method",d.contactMethod?.join?.(", ")||d.contactMethod||"—"],["Best Time",d.bestTime||"—"],["Emergency Contact",`${d.emergName||"—"} (${d.emergRelation||"—"}) — ${d.emergPhone||"—"}`]];
+  document.getElementById("modalContent").innerHTML=`
+    <div class="modal-head"><div><h3>${d.fullName}</h3><div class="sub-info">${d.year||""} · ${d.city||""} · ${d.submissionDate||""}</div></div>
+    <div style="display:flex;align-items:center;gap:8px">${badge(d.eligibility||"ELIGIBLE")}<button class="close-btn" onclick="closeModal()">×</button></div></div>
+    ${d.deferralReasons?`<div class="elig-reasons" style="background:${c.bg};color:${c.color}"><strong>Deferral Reasons:</strong><ul>${d.deferralReasons.split(";").map(r=>`<li>${r.trim()}</li>`).join("")}</ul></div>`:""}
+    ${rows.map(([k,v])=>`<div class="detail-row"><span class="dk">${k}</span><span class="dv">${v||"—"}</span></div>`).join("")}`;
+  document.getElementById("modalBg").classList.add("show");
+}
+function closeModal(){document.getElementById("modalBg").classList.remove("show");}
+</script>
+</body>
+</html>
